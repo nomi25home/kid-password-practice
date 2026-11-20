@@ -51,3 +51,7 @@ After changing `.env`, re-apply with `docker compose up -d --force-recreate`.
 ## This repo as a template
 
 This repo is marked as a GitHub template — "Use this template" on its page creates a fresh copy with the same structure, ready for `cp .env.example .env` and your own kid's name/password/theme.
+
+## License
+
+[MIT](LICENSE) — use it, change it, share it.
