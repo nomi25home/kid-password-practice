@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hi ${CHILD_NAME}! 🌟</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg-gradient: ${THEME_BG};
+      --accent: ${THEME_ACCENT};
+    }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--bg-gradient);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      overflow: hidden;
+    }
+
+    /* Floating bubbles background */
+    .bubbles {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+    }
+    .bubble {
+      position: absolute;
+      bottom: -80px;
+      border-radius: 50%;
+      opacity: 0.35;
+      animation: float-up linear infinite;
+    }
+    @keyframes float-up {
+      0%   { transform: translateY(0) scale(1); opacity: 0.35; }
+      100% { transform: translateY(-110vh) scale(1.3); opacity: 0; }
+    }
+
+    /* Card */
+    .card {
+      position: relative;
+      z-index: 10;
+      background: rgba(255,255,255,0.85);
+      backdrop-filter: blur(12px);
+      border-radius: 32px;
+      padding: 48px 40px 40px;
+      max-width: 420px;
+      width: 90%;
+      text-align: center;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+      border: 3px solid rgba(255,255,255,0.9);
+    }
+
+    .emoji-title { font-size: 3.5rem; margin-bottom: 8px; animation: bounce 2s ease-in-out infinite; }
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50%       { transform: translateY(-12px); }
+    }
+
+    h1 {
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--accent);
+      margin-bottom: 6px;
+      letter-spacing: -0.5px;
+    }
+
+    .subtitle {
+      color: #888;
+      font-size: 0.95rem;
+      margin-bottom: 28px;
+    }
+
+    .input-wrap {
+      position: relative;
+      margin-bottom: 20px;
+    }
+    input[type="password"] {
+      width: 100%;
+      padding: 14px 18px;
+      font-size: 1.15rem;
+      border: 3px solid color-mix(in srgb, var(--accent) 45%, white);
+      border-radius: 16px;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      background: #fff9fd;
+      letter-spacing: 3px;
+      color: #333;
+    }
+    input[type="password"]:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 15%, transparent);
+    }
+    input.shake {
+      animation: shake 0.5s ease;
+      border-color: #ff4444 !important;
+    }
+    @keyframes shake {
+      0%,100% { transform: translateX(0); }
+      20%     { transform: translateX(-10px); }
+      40%     { transform: translateX(10px); }
+      60%     { transform: translateX(-8px); }
+      80%     { transform: translateX(8px); }
+    }
+
+    button {
+      width: 100%;
+      padding: 14px;
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: white;
+      background: linear-gradient(135deg, var(--accent), color-mix(in srgb, var(--accent) 55%, white));
+      border: none;
+      border-radius: 16px;
+      cursor: pointer;
+      transition: transform 0.15s, box-shadow 0.15s;
+      box-shadow: 0 6px 20px color-mix(in srgb, var(--accent) 40%, transparent);
+    }
+    button:hover  { transform: translateY(-2px); box-shadow: 0 8px 24px color-mix(in srgb, var(--accent) 50%, transparent); }
+    button:active { transform: translateY(1px); }
+
+    /* --- RESULT SCREENS --- */
+    #result {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 20px;
+      text-align: center;
+      padding: 20px;
+    }
+
+    /* SUCCESS */
+    #result.success {
+      display: flex;
+      background: linear-gradient(135deg, #ffd6f0 0%, #fff0a0 50%, #c8f5ff 100%);
+    }
+    .success-emoji { font-size: 6rem; animation: pop 0.5s cubic-bezier(0.34,1.56,0.64,1); }
+    @keyframes pop { 0% { transform: scale(0); } 100% { transform: scale(1); } }
+
+    .success-msg {
+      font-size: 2.2rem;
+      font-weight: 900;
+      color: var(--accent);
+      animation: pop 0.5s 0.1s cubic-bezier(0.34,1.56,0.64,1) both;
+    }
+    .success-sub {
+      font-size: 1.1rem;
+      color: #888;
+      animation: pop 0.5s 0.2s cubic-bezier(0.34,1.56,0.64,1) both;
+    }
+
+    /* FAIL */
+    #result.fail {
+      display: flex;
+      background: linear-gradient(135deg, #ffd6d6 0%, #fff0c8 100%);
+    }
+    .fail-emoji { font-size: 5rem; animation: wobble 0.6s ease; }
+    @keyframes wobble {
+      0%   { transform: rotate(0deg); }
+      20%  { transform: rotate(-15deg); }
+      40%  { transform: rotate(15deg); }
+      60%  { transform: rotate(-10deg); }
+      80%  { transform: rotate(10deg); }
+      100% { transform: rotate(0deg); }
+    }
+    .fail-msg  { font-size: 1.8rem; font-weight: 900; color: #e06b00; }
+    .fail-sub  { font-size: 1rem; color: #888; }
+
+    .try-again {
+      margin-top: 10px;
+      padding: 12px 32px;
+      font-size: 1rem;
+      font-weight: 700;
+      color: white;
+      background: linear-gradient(135deg, #ff8c00, #ffb347);
+      border: none;
+      border-radius: 14px;
+      cursor: pointer;
+      box-shadow: 0 6px 18px rgba(255,140,0,0.4);
+      transition: transform 0.15s;
+    }
+    .try-again:hover  { transform: translateY(-2px); }
+    .try-again:active { transform: translateY(1px); }
+
+    /* Confetti (success) */
+    .confetti-piece {
+      position: fixed;
+      width: 12px; height: 12px;
+      top: -20px;
+      border-radius: 3px;
+      animation: confetti-fall linear forwards;
+      z-index: 200;
+      pointer-events: none;
+    }
+    @keyframes confetti-fall {
+      0%   { transform: translateY(0) rotate(0deg); opacity: 1; }
+      80%  { opacity: 1; }
+      100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+    }
+
+    /* Back button */
+    .back-btn {
+      position: fixed;
+      top: 20px; left: 20px;
+      background: rgba(255,255,255,0.7);
+      border: 2px solid rgba(0,0,0,0.1);
+      border-radius: 50px;
+      padding: 8px 18px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      color: #555;
+      z-index: 300;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Floating bubbles -->
+  <div class="bubbles" id="bubbles"></div>
+
+  <!-- Login card -->
+  <div class="card" id="loginCard">
+    <div class="emoji-title">${THEME_EMOJI}</div>
+    <h1>Hi ${CHILD_NAME}!</h1>
+    <p class="subtitle">Enter your secret password ✨</p>
+    <div class="input-wrap">
+      <input type="password" id="pwInput" placeholder="🔑 your password..." autocomplete="off" autofocus />
+    </div>
+    <button onclick="checkPassword()">Let me in! 🚀</button>
+  </div>
+
+  <!-- Result overlay -->
+  <div id="result">
+    <div id="resultContent"></div>
+  </div>
+
+  <button class="back-btn" id="backBtn" onclick="resetToLogin()">← Try again</button>
+
+  <script>
+    // ---- bubbles background ----
+    const bubbleColors = ['#ffb3de','#ffe4a0','#b3f0ff','#d4b3ff','#b3ffcc'];
+    const bubblesEl = document.getElementById('bubbles');
+    for (let i = 0; i < 18; i++) {
+      const b = document.createElement('div');
+      b.className = 'bubble';
+      const size = 30 + Math.random() * 60;
+      b.style.cssText = `
+        width:${size}px; height:${size}px;
+        left:${Math.random()*100}%;
+        background:${bubbleColors[Math.floor(Math.random()*bubbleColors.length)]};
+        animation-duration:${6 + Math.random()*10}s;
+        animation-delay:${Math.random()*8}s;
+      `;
+      bubblesEl.appendChild(b);
+    }
+
+    // ---- password check ----
+    const CORRECT = '${CHILD_PASSWORD}'; // filled in from .env at container start, never committed
+
+    function checkPassword() {
+      const val = document.getElementById('pwInput').value;
+      if (val === CORRECT) {
+        showSuccess();
+      } else {
+        showFail();
+      }
+    }
+
+    document.getElementById('pwInput').addEventListener('keydown', e => {
+      if (e.key === 'Enter') checkPassword();
+    });
+
+    // ---- success celebrations ----
+    const celebrations = [
+      { emoji: '🎉', msg: "You're in, ${CHILD_NAME}!", sub: "You did it!! 🎊🎊🎊" },
+      { emoji: '🚀', msg: "Yay ${CHILD_NAME}!!",      sub: "Magic password! ✨🌟✨" },
+      { emoji: '🌈', msg: "Woohoo!!",         sub: "Rainbow powers activate! 🌈💖" },
+      { emoji: '🏆', msg: "Correct!! 🏆",     sub: "You're amazing, ${CHILD_NAME}! 💕" },
+      { emoji: '⭐', msg: "Super Star!!",      sub: "5 stars for ${CHILD_NAME}! ⭐⭐⭐⭐⭐" },
+      { emoji: '🎂', msg: "YAY!!!",            sub: "Party time!! 🎂🎈🎁" },
+      { emoji: '🦖', msg: "RAWR! You got it!", sub: "${CHILD_NAME} wins!! 🎮🔥" },
+    ];
+
+    function showSuccess() {
+      const c = celebrations[Math.floor(Math.random() * celebrations.length)];
+      const result = document.getElementById('result');
+      const content = document.getElementById('resultContent');
+
+      content.innerHTML = `
+        <div class="success-emoji">${c.emoji}</div>
+        <div class="success-msg">${c.msg}</div>
+        <div class="success-sub">${c.sub}</div>
+      `;
+
+      result.style.display = '';
+      result.className = 'success';
+      document.getElementById('backBtn').style.display = 'block';
+      launchConfetti();
+    }
+
+    function launchConfetti() {
+      const colors = ['#ff69b4','#ffcf00','#00cfff','#a855f7','#22c55e','#f97316'];
+      for (let i = 0; i < 80; i++) {
+        const el = document.createElement('div');
+        el.className = 'confetti-piece';
+        el.style.cssText = `
+          left:${Math.random()*100}vw;
+          background:${colors[Math.floor(Math.random()*colors.length)]};
+          border-radius:${Math.random() > 0.5 ? '50%' : '3px'};
+          width:${8+Math.random()*10}px;
+          height:${8+Math.random()*10}px;
+          animation-duration:${2+Math.random()*2}s;
+          animation-delay:${Math.random()*1.5}s;
+        `;
+        document.body.appendChild(el);
+        el.addEventListener('animationend', () => el.remove());
+      }
+    }
+
+    // ---- fail ----
+    const failMessages = [
+      { emoji: '🙈', msg: "Oops! Not quite...", sub: "Give it another try! 💪" },
+      { emoji: '😅', msg: "Hmm, try again!", sub: "You've totally got this! 🌟" },
+      { emoji: '🤔', msg: "Almost maybe?", sub: "Think think think... 💭" },
+    ];
+
+    function showFail() {
+      const f = failMessages[Math.floor(Math.random() * failMessages.length)];
+      const input = document.getElementById('pwInput');
+      input.classList.add('shake');
+      input.addEventListener('animationend', () => input.classList.remove('shake'), { once: true });
+
+      const result = document.getElementById('result');
+      const content = document.getElementById('resultContent');
+
+      content.innerHTML = `
+        <div class="fail-emoji">${f.emoji}</div>
+        <div class="fail-msg">${f.msg}</div>
+        <div class="fail-sub">${f.sub}</div>
+        <button class="try-again" onclick="resetToLogin()">Try again! 🔄</button>
+      `;
+
+      result.style.display = '';
+      result.className = 'fail';
+      document.getElementById('backBtn').style.display = 'block';
+    }
+
+    function resetToLogin() {
+      const result = document.getElementById('result');
+      result.className = '';
+      result.style.display = 'none';
+      document.getElementById('backBtn').style.display = 'none';
+      document.getElementById('pwInput').value = '';
+      document.getElementById('pwInput').focus();
+    }
+  </script>
+</body>
+</html>

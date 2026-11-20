@@ -1,0 +1,13 @@
+services:
+  kid-password-practice:
+    image: nginx:alpine
+    container_name: kid-password-practice
+    restart: unless-stopped
+    ports:
+      - "${PORT:-8100}:80"
+    volumes:
+      - ./index.html.template:/etc/nginx/templates/index.html.template:ro
+      - ./render-and-serve.sh:/render-and-serve.sh:ro
+    env_file:
+      - .env
+    command: ["sh", "/render-and-serve.sh"]
