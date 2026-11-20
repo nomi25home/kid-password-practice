@@ -7,6 +7,7 @@ Runs as one `nginx:alpine` container. No database, no backend, no build step —
 <p>
   <img src="docs/screenshot-login.jpg" alt="Login screen asking for the password" width="260">
   <img src="docs/screenshot-success.jpg" alt="Success screen with a cake emoji and confetti" width="260">
+  <img src="docs/screenshot-fail.jpg" alt="Gentle try-again screen after a wrong guess" width="260">
 </p>
 
 ## Quick start
