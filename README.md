@@ -4,6 +4,11 @@ A tiny, playful web page that helps a Pre-K/K kid practice **remembering their o
 
 Runs as one `nginx:alpine` container. No database, no backend, no build step — works on any machine that can run Docker: a laptop, a Raspberry Pi, a NAS (Synology/Unraid), a cloud VM, or a container manager UI (Portainer, Dockge, Coolify, Synology Container Manager, Unraid's Docker tab).
 
+<p>
+  <img src="docs/screenshot-login.jpg" alt="Login screen asking for the password" width="260">
+  <img src="docs/screenshot-success.jpg" alt="Success screen with a cake emoji and confetti" width="260">
+</p>
+
 ## Quick start
 
 Works with Docker Compose on any platform:
