@@ -54,6 +54,45 @@ At startup, `render-and-serve.sh` resolves the `THEME` preset (`boy` = blue/gree
 
 After changing `.env`, re-apply with `docker compose up -d --force-recreate`.
 
+## Putting it behind HTTPS / your own domain (optional)
+
+The container just listens on plain HTTP (`PORT`, default `8100`). To serve it at a real hostname with TLS, put a reverse proxy in front — none of this touches the container itself.
+
+**Caddy** (automatic HTTPS via Let's Encrypt):
+
+```
+password.example.com {
+    reverse_proxy localhost:8100
+}
+```
+
+**nginx:**
+
+```nginx
+server {
+    listen 443 ssl;
+    server_name password.example.com;
+
+    ssl_certificate     /etc/ssl/certs/password.example.com.pem;
+    ssl_certificate_key /etc/ssl/private/password.example.com.key;
+
+    location / {
+        proxy_pass http://localhost:8100;
+    }
+}
+```
+
+**Traefik** (as Docker labels, if you're already running a Traefik edge router):
+
+```yaml
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.kid-password-practice.rule=Host(`password.example.com`)"
+      - "traefik.http.services.kid-password-practice.loadbalancer.server.port=80"
+```
+
+Swap `localhost:8100` / `password.example.com` for your own host/port and domain. If the reverse proxy runs on a different machine than the container, use that machine's IP or hostname instead of `localhost`.
+
 ## This repo as a template
 
 This repo is marked as a GitHub template — "Use this template" on its page creates a fresh copy with the same structure, ready for `cp .env.example .env` and your own kid's name/password/theme.
